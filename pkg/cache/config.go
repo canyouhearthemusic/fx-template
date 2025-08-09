@@ -1,12 +1,12 @@
-package server
+package cache
 
 import (
 	"github.com/spf13/viper"
+	"prac/pkg/cache/redis"
 )
 
 type Config struct {
-	Host string `mapstructure:"HTTP_HOST"`
-	Port int    `mapstructure:"HTTP_PORT"`
+	Redis *redis.Config `mapstructure:",squash"`
 }
 
 func NewConfig(provider *viper.Viper) *Config {
