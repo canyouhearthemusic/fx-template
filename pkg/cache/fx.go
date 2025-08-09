@@ -2,16 +2,17 @@ package cache
 
 import (
 	"context"
+	"prac/pkg/cache/redis"
+
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"prac/pkg/cache/redis"
 )
 
 func NewModule() fx.Option {
 	return fx.Module(
 		"cache",
 		fx.Provide(
-			NewConfig,
+			redis.NewConfig,
 			redis.New,
 		),
 		fx.Invoke(func(lc fx.Lifecycle, cache *redis.Cache) {
