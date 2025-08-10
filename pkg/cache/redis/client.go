@@ -10,21 +10,21 @@ import (
 	"go.uber.org/zap"
 )
 
-type Cache struct {
+type Client struct {
 	*redis.Client
 
 	logger *zap.Logger
 	cfg    *Config
 }
 
-func New(logger *zap.Logger, cfg *Config) *Cache {
-	return &Cache{
+func NewClient(logger *zap.Logger, cfg *Config) *Client {
+	return &Client{
 		logger: logger,
 		cfg:    cfg,
 	}
 }
 
-func (c *Cache) Connect(ctx context.Context) error {
+func (c *Client) Connect(ctx context.Context) error {
 	c.Client = redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", c.cfg.Host, c.cfg.Port),
 		Password: c.cfg.Password,
@@ -42,7 +42,7 @@ func (c *Cache) Connect(ctx context.Context) error {
 	return nil
 }
 
-func (c *Cache) Close(_ context.Context) error {
+func (c *Client) Close(_ context.Context) error {
 	c.logger.Info("Closing cache connection...")
 
 	if err := c.Client.Close(); err != nil {
@@ -54,7 +54,7 @@ func (c *Cache) Close(_ context.Context) error {
 	return nil
 }
 
-func (c *Cache) GetStruct(ctx context.Context, key string, result any) error {
+func (c *Client) GetStruct(ctx context.Context, key string, result any) error {
 	data, err := c.Client.Get(ctx, key).Result()
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ func (c *Cache) GetStruct(ctx context.Context, key string, result any) error {
 	return json.Unmarshal([]byte(data), result)
 }
 
-func (c *Cache) SetStruct(ctx context.Context, key string, value any, ttl time.Duration) error {
+func (c *Client) SetStruct(ctx context.Context, key string, value any, ttl time.Duration) error {
 	jsonData, err := json.Marshal(value)
 	if err != nil {
 		return err

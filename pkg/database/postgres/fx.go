@@ -1,31 +1,31 @@
-package cache
+package postgres
 
 import (
 	"context"
-	"prac/pkg/cache/redis"
 
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
-func NewModule() fx.Option {
+func NewDatabaseClient() fx.Option {
 	return fx.Module(
-		"cache",
-		fx.Options(
-			redis.NewCacheClient(),
+		"postgres",
+		fx.Provide(
+			NewConfig,
+			NewClient,
 		),
-		fx.Invoke(func(lc fx.Lifecycle, redis *redis.Client) {
+		fx.Invoke(func(lc fx.Lifecycle, client *Client) {
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
-					return redis.Connect(ctx)
+					return client.Connect(ctx)
 				},
 				OnStop: func(ctx context.Context) error {
-					return redis.Close(ctx)
+					return client.Close(ctx)
 				},
 			})
 		}),
 		fx.Decorate(func(logger *zap.Logger) *zap.Logger {
-			return logger.Named("cache")
+			return logger.Named("postgres")
 		}),
 	)
 }

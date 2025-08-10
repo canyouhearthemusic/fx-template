@@ -43,6 +43,8 @@ func New(logger *zap.Logger, cfg *Config) *Server {
 }
 
 func (s *Server) Start(_ context.Context) error {
+	s.logger.Info("Starting server", zap.String("address", s.Addr()))
+
 	go func() {
 		if err := s.Listen(s.Addr()); err != nil {
 			s.logger.Fatal("failed to start server", zap.Error(err))
@@ -56,6 +58,7 @@ func (s *Server) Start(_ context.Context) error {
 
 func (s *Server) Stop(ctx context.Context) error {
 	s.logger.Info("Shutting down server...")
+
 	return s.ShutdownWithContext(ctx)
 }
 
